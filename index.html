@@ -1,0 +1,1533 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Financial Calculator</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Sora:wght@700;800&display=swap" rel="stylesheet">
+  <style>
+    /* Fallback font jika Google Fonts gagal load */
+    @font-face { font-family: 'Plus Jakarta Sans'; src: local('Segoe UI'), local('Helvetica Neue'), local('Arial'); }
+  </style>
+  <style>
+    :root {
+      --blue-900: #0a1628;
+      --blue-800: #0d2247;
+      --blue-700: #1a3a6e;
+      --blue-600: #1e4db7;
+      --blue-500: #2563eb;
+      --blue-400: #3b82f6;
+      --blue-300: #60a5fa;
+      --blue-200: #93c5fd;
+      --blue-100: #dbeafe;
+      --cyan-400: #22d3ee;
+      --cyan-300: #67e8f9;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --gray-700: #374151;
+      --gray-500: #6b7280;
+      --gray-300: #d1d5db;
+      --gray-100: #f3f4f6;
+      --white: #ffffff;
+      --card-shadow: 0 20px 60px rgba(10, 22, 40, 0.18), 0 4px 16px rgba(37,99,235,0.08);
+      --input-shadow: 0 2px 8px rgba(37,99,235,0.07);
+      --radius: 18px;
+      --radius-sm: 10px;
+      --transition: all 0.28s cubic-bezier(.4,0,.2,1);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Plus Jakarta Sans', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+      background: linear-gradient(145deg, #e8f0fe 0%, #dbeafe 40%, #e0f2fe 100%);
+      min-height: 100vh;
+      display: block;
+      padding: 24px 16px 40px;
+      color: var(--blue-900);
+      overflow-x: hidden;
+    }
+    .page-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      top: -120px; left: -120px;
+      width: 420px; height: 420px;
+      background: radial-gradient(circle, rgba(37,99,235,0.13) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    body::after {
+      content: '';
+      position: fixed;
+      bottom: -80px; right: -80px;
+      width: 320px; height: 320px;
+      background: radial-gradient(circle, rgba(34,211,238,0.13) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    /* APP HEADER */
+    .app-header {
+      text-align: center;
+      margin-bottom: 28px;
+      animation: slideDown 0.6s cubic-bezier(.4,0,.2,1);
+    }
+    .app-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+    .app-logo-icon {
+      width: 48px; height: 48px;
+      background: linear-gradient(135deg, var(--blue-600), var(--cyan-400));
+      border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 4px 16px rgba(37,99,235,0.3);
+    }
+    .app-logo-icon i { color: white; font-size: 22px; }
+    .app-title {
+      font-family: 'Sora', sans-serif;
+      font-size: 1.7rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--blue-700), var(--blue-400));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      letter-spacing: -0.5px;
+    }
+    .app-subtitle {
+      font-size: 0.88rem;
+      color: var(--blue-600);
+      opacity: 0.75;
+      font-weight: 500;
+    }
+
+    /* CARD */
+    .card {
+      background: rgba(255,255,255,0.92);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-radius: var(--radius);
+      box-shadow: var(--card-shadow);
+      width: 100%;
+      max-width: 520px;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.8);
+      animation: fadeUp 0.55s cubic-bezier(.4,0,.2,1) 0.1s both;
+    }
+
+    /* TAB NAV */
+    .tab-nav {
+      display: flex;
+      background: linear-gradient(135deg, var(--blue-700) 0%, var(--blue-600) 100%);
+      padding: 10px 10px 0;
+      gap: 4px;
+      position: relative;
+    }
+    .tab-nav::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 1px;
+      background: rgba(255,255,255,0.1);
+    }
+    .tab-btn {
+      flex: 1;
+      padding: 11px 6px 13px;
+      background: rgba(255,255,255,0.1);
+      border: none;
+      border-radius: 10px 10px 0 0;
+      color: rgba(255,255,255,0.65);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 0.75rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--transition);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      letter-spacing: 0.2px;
+    }
+    .tab-btn i { font-size: 15px; }
+    .tab-btn:hover { background: rgba(255,255,255,0.18); color: white; }
+    .tab-btn.active {
+      background: white;
+      color: var(--blue-600);
+      box-shadow: 0 -4px 12px rgba(0,0,0,0.08);
+    }
+
+    /* TAB CONTENT */
+    .tab-content { display: none; padding: 28px 28px 24px; }
+    .tab-content.active {
+      display: block;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .section-title {
+      font-family: 'Sora', sans-serif;
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--blue-800);
+      margin-bottom: 4px;
+    }
+    .section-desc {
+      font-size: 0.82rem;
+      color: var(--gray-500);
+      margin-bottom: 22px;
+    }
+
+    /* FORM */
+    .form-group { margin-bottom: 18px; }
+    .form-group label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--blue-800);
+      margin-bottom: 7px;
+    }
+    .form-group label i {
+      color: var(--blue-400);
+      font-size: 13px;
+      width: 16px;
+      text-align: center;
+    }
+    .input-wrap { position: relative; }
+    .input-wrap .prefix {
+      position: absolute;
+      left: 14px; top: 50%;
+      transform: translateY(-50%);
+      color: var(--gray-500);
+      font-size: 13px;
+      pointer-events: none;
+    }
+    .input-wrap input,
+    .input-wrap select,
+    .form-group select {
+      width: 100%;
+      padding: 12px 14px 12px 42px;
+      border: 1.5px solid var(--blue-100);
+      border-radius: var(--radius-sm);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 0.92rem;
+      color: var(--blue-900);
+      background: var(--gray-100);
+      transition: var(--transition);
+      box-shadow: var(--input-shadow);
+    }
+    .input-wrap input:focus,
+    .input-wrap select:focus,
+    .form-group select:focus {
+      outline: none;
+      border-color: var(--blue-400);
+      background: white;
+      box-shadow: 0 0 0 3px rgba(59,130,246,0.13);
+    }
+    .input-wrap input::placeholder { color: #b0bcd4; }
+    .input-note {
+      font-size: 0.75rem;
+      color: var(--gray-500);
+      margin-top: 5px;
+      font-style: italic;
+    }
+
+    /* PERIOD SELECTOR */
+    .period-selector {
+      display: flex;
+      background: var(--gray-100);
+      border-radius: var(--radius-sm);
+      padding: 4px;
+      gap: 4px;
+      margin-bottom: 18px;
+    }
+    .period-btn {
+      flex: 1;
+      padding: 11px 8px;
+      background: none;
+      border: none;
+      border-radius: 8px;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--gray-500);
+      cursor: pointer;
+      transition: var(--transition);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+    .period-btn i { font-size: 12px; }
+    .period-btn.active {
+      background: white;
+      color: var(--blue-600);
+      box-shadow: 0 2px 8px rgba(37,99,235,0.12);
+    }
+
+    /* OPTION CARDS */
+    .option-grid {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+    .option-card {
+      flex: 1;
+      padding: 14px 10px;
+      border: 1.5px solid var(--blue-100);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: var(--transition);
+      background: var(--gray-100);
+      text-align: center;
+    }
+    .option-card i {
+      font-size: 1.4rem;
+      color: var(--gray-500);
+      display: block;
+      margin-bottom: 6px;
+      transition: var(--transition);
+    }
+    .option-card span {
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--gray-500);
+      display: block;
+    }
+    .option-card.active {
+      border-color: var(--blue-400);
+      background: rgba(59,130,246,0.06);
+    }
+    .option-card.active i { color: var(--blue-500); }
+    .option-card.active span { color: var(--blue-600); }
+
+    /* CALCULATE BUTTON */
+    .calc-btn {
+      width: 100%;
+      padding: 15px;
+      background: linear-gradient(135deg, var(--blue-600), var(--blue-400));
+      color: white;
+      border: none;
+      border-radius: var(--radius-sm);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: var(--transition);
+      box-shadow: 0 4px 16px rgba(37,99,235,0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 4px;
+      letter-spacing: 0.3px;
+    }
+    .calc-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(37,99,235,0.4);
+      background: linear-gradient(135deg, var(--blue-700), var(--blue-500));
+    }
+    .calc-btn:active { transform: translateY(0); }
+
+    /* RESULT BOX */
+    .result-box {
+      margin-top: 22px;
+      background: linear-gradient(135deg, #eff6ff 0%, #e0f2fe 100%);
+      border: 1.5px solid var(--blue-200);
+      border-radius: var(--radius-sm);
+      padding: 20px;
+      display: none;
+      animation: fadeIn 0.35s ease;
+    }
+    .result-box.show { display: block; }
+    .result-box.warning-box {
+      background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+      border-color: #fde68a;
+    }
+    .result-box.success-box {
+      background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+      border-color: #6ee7b7;
+    }
+    .result-label {
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--blue-600);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .result-label i { font-size: 12px; }
+    .result-main {
+      font-family: 'Sora', sans-serif;
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: var(--blue-800);
+      line-height: 1.4;
+      margin-bottom: 6px;
+    }
+    .result-main.success-text { color: var(--success); }
+    .result-main.warning-text { color: var(--warning); }
+    .result-sub {
+      font-size: 0.82rem;
+      color: var(--gray-500);
+    }
+
+    /* INVESTASI RESULT CARDS */
+    .result-cards {
+      display: flex;
+      gap: 12px;
+      margin-top: 12px;
+    }
+    .result-card {
+      flex: 1;
+      background: white;
+      border-radius: 10px;
+      padding: 14px;
+      box-shadow: 0 2px 8px rgba(37,99,235,0.07);
+    }
+    .result-card h5 {
+      font-size: 0.73rem;
+      color: var(--gray-500);
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    .result-card .val {
+      font-family: 'Sora', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--blue-600);
+    }
+    .result-details-list {
+      margin-top: 14px;
+      border-top: 1px solid var(--blue-100);
+      padding-top: 12px;
+    }
+    .result-details-list p {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.82rem;
+      color: var(--gray-500);
+      margin-bottom: 6px;
+    }
+    .result-details-list p span:last-child {
+      font-weight: 600;
+      color: var(--blue-800);
+    }
+
+    /* SARAN BOX */
+    .saran-wrap {
+      margin-top: 16px;
+      background: #fffbeb;
+      border: 1.5px solid #fde68a;
+      border-radius: var(--radius-sm);
+      padding: 18px;
+      display: none;
+      animation: fadeIn 0.35s ease;
+    }
+    .saran-wrap.show { display: block; }
+    .saran-header-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    .saran-header-row i { color: var(--warning); font-size: 16px; }
+    .saran-header-row h4 { font-size: 0.9rem; font-weight: 700; color: var(--warning); }
+    .kekurangan-info {
+      background: white;
+      border-radius: 8px;
+      padding: 12px 14px;
+      margin-bottom: 14px;
+      font-size: 0.82rem;
+      color: var(--gray-700);
+    }
+    .kekurangan-info p { margin-bottom: 4px; }
+    .kekurangan-info strong { color: var(--danger); }
+    .saran-grid {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .saran-card {
+      flex: 1;
+      min-width: 180px;
+      background: white;
+      border-radius: 10px;
+      padding: 14px;
+      border-top: 3px solid var(--blue-400);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    .saran-card h5 {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--blue-800);
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .saran-card h5 i { color: var(--blue-500); font-size: 12px; }
+    .saran-card p { font-size: 0.78rem; color: var(--gray-500); line-height: 1.5; margin-bottom: 8px; }
+    .saran-val {
+      font-family: 'Sora', sans-serif;
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--blue-600);
+      text-align: center;
+      padding: 8px;
+      background: rgba(59,130,246,0.07);
+      border-radius: 8px;
+      margin: 8px 0;
+    }
+    .saran-note { font-size: 0.73rem; color: var(--gray-500); font-style: italic; }
+
+    /* FOOTER */
+    .app-footer {
+      margin-top: 24px;
+      text-align: center;
+      animation: fadeUp 0.55s cubic-bezier(.4,0,.2,1) 0.25s both;
+    }
+    .saweria-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 11px 22px;
+      background: linear-gradient(135deg, #f59e0b, #f97316);
+      color: white;
+      border-radius: 50px;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 0.82rem;
+      font-weight: 700;
+      text-decoration: none;
+      box-shadow: 0 4px 14px rgba(245,158,11,0.3);
+      transition: var(--transition);
+      letter-spacing: 0.3px;
+    }
+    .saweria-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(245,158,11,0.4);
+    }
+    .saweria-btn i { font-size: 14px; }
+    .footer-credit {
+      font-size: 0.75rem;
+      color: var(--blue-600);
+      opacity: 0.6;
+      margin-top: 10px;
+      font-weight: 500;
+    }
+    .sosmed-box {
+      margin-bottom: 18px;
+      text-align: center;
+      background: rgba(255,255,255,0.7);
+      border: 1.5px solid rgba(37,99,235,0.15);
+      border-radius: 16px;
+      padding: 16px 24px;
+      backdrop-filter: blur(8px);
+      box-shadow: 0 2px 12px rgba(37,99,235,0.08);
+    }
+    .sosmed-title {
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--blue-600);
+      margin-bottom: 10px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      opacity: 0.8;
+    }
+    .sosmed-handles {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .sosmed-handle {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--blue-600);
+      background: linear-gradient(135deg, #eff6ff, #dbeafe);
+      border: 1.5px solid var(--blue-200);
+      border-radius: 50px;
+      padding: 6px 14px;
+      cursor: default;
+      user-select: none;
+    }
+    .sosmed-handle i { font-size: 11px; color: var(--blue-400); }
+    body.dark .sosmed-box { background: rgba(15,30,58,0.7); border-color: rgba(59,130,246,0.2); }
+    body.dark .sosmed-title { color: #93c5fd; }
+    body.dark .sosmed-handle { background: linear-gradient(135deg,#0f2042,#1e3a5f); border-color: #2563eb44; color: var(--blue-300); }
+
+    /* ANIMATIONS */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes slideDown {
+      from { opacity: 0; transform: translateY(-16px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 560px) {
+      .tab-btn span { display: none; }
+      .tab-btn { padding: 13px 6px; }
+      .tab-content { padding: 22px 18px 20px; }
+      .result-cards { flex-direction: column; }
+      .saran-grid { flex-direction: column; }
+      .app-title { font-size: 1.4rem; }
+    }
+    @media (max-width: 360px) {
+      .option-grid { flex-direction: column; }
+    }
+
+    /* DARK MODE TOGGLE */
+    .dark-toggle {
+      width: 36px; height: 36px;
+      background: rgba(255,255,255,0.2);
+      border: 1.5px solid rgba(255,255,255,0.35);
+      border-radius: 50%;
+      color: var(--blue-700); font-size: 15px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: var(--transition); flex-shrink: 0;
+      box-shadow: 0 2px 8px rgba(37,99,235,0.15);
+    }
+    .dark-toggle:hover { background: rgba(255,255,255,0.45); transform: rotate(20deg); }
+    body.dark .dark-toggle { color: #fbbf24; border-color: rgba(251,191,36,0.4); background: rgba(251,191,36,0.12); }
+    body.dark .dark-toggle:hover { background: rgba(251,191,36,0.22); }
+
+    /* TABEL CICILAN */
+    .cicilan-table-wrap { margin-top: 14px; max-height: 220px; overflow-y: auto; border-radius: 8px; border: 1px solid var(--blue-100); }
+    .cicilan-table { width: 100%; border-collapse: collapse; font-size: 0.78rem; }
+    .cicilan-table th { background: var(--blue-600); color: white; padding: 8px 10px; text-align: left; position: sticky; top: 0; font-weight: 600; }
+    .cicilan-table td { padding: 7px 10px; border-bottom: 1px solid var(--blue-100); color: var(--gray-700); }
+    .cicilan-table tr:last-child td { border-bottom: none; }
+    .cicilan-table tr:nth-child(even) td { background: #f8faff; }
+
+    /* DANA DARURAT */
+    .dana-badge { display: inline-block; padding: 4px 12px; border-radius: 20px; background: var(--blue-100); color: var(--blue-700); font-size: 0.75rem; font-weight: 700; margin-bottom: 10px; }
+    .dana-tiers { display: flex; flex-direction: column; gap: 10px; margin-top: 10px; }
+    .dana-tier { background: var(--gray-100); border: 1.5px solid var(--blue-100); border-radius: 10px; padding: 14px; }
+    .dana-tier h5 { font-size: 0.82rem; font-weight: 700; color: var(--blue-700); margin-bottom: 4px; }
+    .dana-tier .val { font-family: 'Sora', sans-serif; font-size: 1.2rem; font-weight: 700; color: var(--blue-600); }
+    .dana-tier p { font-size: 0.75rem; color: var(--gray-500); margin-top: 3px; }
+
+    /* DARK MODE */
+    body.dark { background: linear-gradient(145deg, #0a1628 0%, #0d1f3c 50%, #0a1a2e 100%); color: #e2e8f0; }
+    body.dark .card { background: rgba(15,30,58,0.97); border-color: rgba(59,130,246,0.2); }
+    body.dark .section-title { color: #93c5fd; }
+    body.dark .section-desc, body.dark .input-note { color: #64748b; }
+    body.dark .form-group label { color: #93c5fd; }
+    body.dark .input-wrap input, body.dark .input-wrap select { background: #1e3a5f; border-color: #2563eb44; color: #e2e8f0; }
+    body.dark .input-wrap input::placeholder { color: #4a6fa5; }
+    body.dark .input-wrap input:focus, body.dark .input-wrap select:focus { background: #1a3356; border-color: var(--blue-400); }
+    body.dark .period-selector { background: #1e3a5f; }
+    body.dark .period-btn { color: #94a3b8; }
+    body.dark .period-btn.active { background: #2563eb; color: white; }
+    body.dark .option-card { background: #1e3a5f; border-color: #2563eb44; }
+    body.dark .option-card i, body.dark .option-card span { color: #94a3b8; }
+    body.dark .option-card.active { background: rgba(59,130,246,0.15); border-color: var(--blue-400); }
+    body.dark .option-card.active i, body.dark .option-card.active span { color: var(--blue-300); }
+    body.dark .result-box { background: linear-gradient(135deg,#0f2042,#0d1f3c); border-color: #2563eb55; }
+    body.dark .result-box.success-box { background: linear-gradient(135deg,#052e16,#064e24); border-color: #059669; }
+    body.dark .result-box.warning-box { background: linear-gradient(135deg,#1c1000,#2d1a00); border-color: #d97706; }
+    body.dark .result-label { color: var(--blue-300); }
+    body.dark .result-main { color: #e2e8f0; }
+    body.dark .result-sub { color: #94a3b8; }
+    body.dark .result-card { background: #1e3a5f; }
+    body.dark .result-card h5 { color: #94a3b8; }
+    body.dark .result-card .val { color: var(--blue-300); }
+    body.dark .result-details-list { border-color: #2563eb33; }
+    body.dark .result-details-list p { color: #94a3b8; }
+    body.dark .result-details-list p span:last-child { color: #e2e8f0; }
+    body.dark .saran-wrap { background: #1c1200; border-color: #b45309; }
+    body.dark .kekurangan-info { background: #1e3a5f; color: #e2e8f0; }
+    body.dark .saran-card { background: #1e3a5f; border-top-color: var(--blue-400); }
+    body.dark .saran-card h5 { color: #93c5fd; }
+    body.dark .saran-card p { color: #94a3b8; }
+    body.dark .saran-val { background: rgba(59,130,246,0.15); color: var(--blue-300); }
+    body.dark .saran-note { color: #64748b; }
+    body.dark .app-title { background: linear-gradient(135deg,#93c5fd,#60a5fa); -webkit-background-clip:text; background-clip:text; }
+    body.dark .app-subtitle { color: #93c5fd; opacity:0.8; }
+    .sosmed-text-title { font-size:0.88rem; font-weight:700; color:#111827; margin-top:10px; }
+    .sosmed-text-handle { font-size:0.85rem; font-weight:700; color:#111827; margin-top:3px; }
+    body.dark .sosmed-text-title { color:#ffffff; }
+    body.dark .sosmed-text-handle { color:#ffffff; }
+    body.dark .cicilan-table td { color: #cbd5e1; }
+    body.dark .cicilan-table tr:nth-child(even) td { background: #1e3a5f; }
+    body.dark .cicilan-table-wrap { border-color: #2563eb33; }
+    body.dark .footer-credit { color: #93c5fd; }
+    body.dark .dana-badge { background: #1e3a5f; color: #93c5fd; }
+    body.dark .dana-tier { background: #1e3a5f; border-color: #2563eb33; }
+    body.dark .dana-tier h5 { color: #93c5fd; }
+    body.dark .dana-tier p { color: #94a3b8; }
+    body.dark .dana-tier .val { color: var(--blue-300); }
+  </style>
+</head>
+<body>
+<div class="page-wrapper">
+
+  <!-- APP HEADER -->
+  <div class="app-header">
+    <div class="app-logo">
+      <div class="app-logo-icon">
+        <i class="fas fa-chart-pie"></i>
+      </div>
+      <span class="app-title">Financial Calculator</span>
+      <button class="dark-toggle" id="darkToggle" onclick="toggleDark()" title="Toggle Dark Mode">
+        <i class="fas fa-moon" id="darkIcon"></i>
+      </button>
+    </div>
+    <p class="app-subtitle">Rencanakan keuangan Anda dengan cerdas</p>
+    <p class="sosmed-text-title">Ikuti sosial media kami</p>
+    <p class="sosmed-text-handle">@super_informasi</p>
+    <p class="sosmed-text-handle">@super_blue_finance</p>
+  </div>
+
+  <!-- MAIN CARD -->
+  <div class="card">
+
+    <!-- TAB NAV -->
+    <div class="tab-nav">
+      <button class="tab-btn active" onclick="switchTab('kapan', this)">
+        <i class="fas fa-calendar-day"></i>
+        <span>Kapan Beli</span>
+      </button>
+      <button class="tab-btn" onclick="switchTab('berapa', this)">
+        <i class="fas fa-calculator"></i>
+        <span>Berapa Nabung</span>
+      </button>
+      <button class="tab-btn" onclick="switchTab('investasi', this)">
+        <i class="fas fa-chart-line"></i>
+        <span>Investasi</span>
+      </button>
+      <button class="tab-btn" onclick="switchTab('cicilan', this)">
+        <i class="fas fa-credit-card"></i>
+        <span>Cicilan</span>
+      </button>
+      <button class="tab-btn" onclick="switchTab('dana', this)">
+        <i class="fas fa-shield-alt"></i>
+        <span>Dana Darurat</span>
+      </button>
+    </div>
+
+    <!-- ======================== TAB 1: KAPAN BELI ======================== -->
+    <div id="tab-kapan" class="tab-content active">
+      <div class="section-title">Kapan Bisa Beli?</div>
+      <p class="section-desc">Hitung berapa lama kamu perlu menabung untuk membeli sesuatu</p>
+
+      <div class="form-group">
+        <label><i class="fas fa-tag"></i> Harga Barang</label>
+        <div class="input-wrap">
+          <span class="prefix"><i class="fas fa-money-bill-wave"></i></span>
+          <input type="text" id="k_harga" placeholder="Contoh: 5.000.000" oninput="formatRupiah(this)">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label><i class="fas fa-wallet"></i> Uang Sudah Terkumpul</label>
+        <div class="input-wrap">
+          <span class="prefix"><i class="fas fa-coins"></i></span>
+          <input type="text" id="k_terkumpul" placeholder="Contoh: 1.500.000" oninput="formatRupiah(this)">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label><i class="fas fa-piggy-bank"></i> Nabung per Hari/Bulan</label>
+        <div class="input-wrap">
+          <span class="prefix"><i class="fas fa-hand-holding-usd"></i></span>
+          <input type="text" id="k_nabung" placeholder="Contoh: 50.000" oninput="formatRupiah(this)">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label><i class="fas fa-sync-alt"></i> Periode Tabungan</label>
+        <div class="period-selector">
+          <button class="period-btn active" id="k_hari_btn" onclick="setPeriode('kapan','hari')">
+            <i class="fas fa-sun"></i> Per Hari
+          </button>
+          <button class="period-btn" id="k_bulan_btn" onclick="setPeriode('kapan','bulan')">
+            <i class="fas fa-calendar-week"></i> Per Bulan
+          </button>
+        </div>
+        
+      </div>
+
+      <button class="calc-btn" onclick="hitungKapan()">
+        <i class="fas fa-calculator"></i> Hitung Sekarang
+      </button>
+
+      <div class="result-box" id="result-kapan">
+        <div class="result-label"><i class="fas fa-clock"></i> Hasil Perhitungan</div>
+        <div class="result-main" id="result-kapan-main"></div>
+        <div class="result-sub" id="result-kapan-sub"></div>
+      </div>
+    </div>
+
+    <!-- ======================== TAB 2: BERAPA NABUNG ======================== -->
+    <div id="tab-berapa" class="tab-content">
+      <div class="section-title">Berapa Harus Nabung?</div>
+      <p class="section-desc">Hitung nominal tabungan agar bisa beli tepat waktu</p>
+
+      <div class="form-group">
+        <label><i class="fas fa-tag"></i> Harga Barang</label>
+        <div class="input-wrap">
+          <span class="prefix"><i class="fas fa-money-bill-wave"></i></span>
+          <input type="text" id="b_harga" placeholder="Contoh: 5.000.000" oninput="formatRupiah(this)">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label><i class="fas fa-wallet"></i> Uang Sudah Terkumpul</label>
+        <div class="input-wrap">
+          <span class="prefix"><i class="fas fa-coins"></i></span>
+          <input type="text" id="b_terkumpul" placeholder="Contoh: 1.500.000" oninput="formatRupiah(this)">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label><i class="fas fa-calendar-alt"></i> Tanggal Target Beli</label>
+        <div class="input-wrap">
+          <span class="prefix"><i class="fas fa-bullseye"></i></span>
+          <input type="date" id="b_target_date" style="padding-left:42px;">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label><i class="fas fa-sync-alt"></i> Tampilkan Per</label>
+        <div class="period-selector">
+          <button class="period-btn active" id="b_hari_btn" onclick="setPeriode('berapa','hari')">
+            <i class="fas fa-sun"></i> Per Hari
+          </button>
+          <button class="period-btn" id="b_bulan_btn" onclick="setPeriode('berapa','bulan')">
+            <i class="fas fa-calendar-week"></i> Per Bulan
+          </button>
+        </div>
+      </div>
+
+      <button class="calc-btn" onclick="hitungBerapa()">
+        <i class="fas fa-calculator"></i> Hitung Sekarang
+      </button>
+
+      <div class="result-box" id="result-berapa">
+        <div class="result-label"><i class="fas fa-piggy-bank"></i> Hasil Perhitungan</div>
+        <div class="result-main" id="result-berapa-main"></div>
+        <div class="result-sub" id="result-berapa-sub"></div>
+      </div>
+    </div>
+
+    <!-- ======================== TAB 3: INVESTASI ======================== -->
+    <div id="tab-investasi" class="tab-content">
+      <div class="section-title">Kalkulator Investasi</div>
+      <p class="section-desc">Hitung potensi hasil investasi berkala kamu</p>
+
+      <div class="form-group">
+        <label><i class="fas fa-bullseye"></i> Target Dana (opsional)</label>
+        <div class="input-wrap">
+          <span class="prefix"><i class="fas fa-flag"></i></span>
+          <input type="text" id="i_target" placeholder="Contoh: 1.000.000.000" oninput="formatRupiah(this)">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label><i class="fas fa-wallet"></i> Setoran per Periode</label>
+        <div class="input-wrap">
+          <span class="prefix"><i class="fas fa-money-bill-wave"></i></span>
+          <input type="text" id="i_setoran" placeholder="Contoh: 1.000.000" oninput="formatRupiah(this)">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label><i class="fas fa-hourglass-half"></i> Lama Investasi (tahun)</label>
+        <div class="input-wrap">
+          <span class="prefix"><i class="fas fa-calendar-alt"></i></span>
+          <input type="number" id="i_lama" placeholder="Contoh: 10" min="1" style="padding-left:42px;">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label><i class="fas fa-percentage"></i> Return per Tahun (%)</label>
+        <div class="input-wrap">
+          <span class="prefix"><i class="fas fa-chart-bar"></i></span>
+          <input type="number" id="i_return" placeholder="Contoh: 10" step="0.1" min="0" max="100" style="padding-left:42px;">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label><i class="fas fa-calendar-week"></i> Investasi Tiap</label>
+        <div class="option-grid">
+          <div class="option-card active" id="i_period_bulan" onclick="setInvestasiOption('period','bulan')">
+            <i class="fas fa-calendar-week"></i>
+            <span>Bulan</span>
+          </div>
+          <div class="option-card" id="i_period_tahun" onclick="setInvestasiOption('period','tahun')">
+            <i class="fas fa-calendar-alt"></i>
+            <span>Tahun</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label><i class="fas fa-clock"></i> Waktu Setoran</label>
+        <div class="option-grid">
+          <div class="option-card active" id="i_timing_awal" onclick="setInvestasiOption('timing','awal')">
+            <i class="fas fa-arrow-circle-up"></i>
+            <span>Awal Periode</span>
+          </div>
+          <div class="option-card" id="i_timing_akhir" onclick="setInvestasiOption('timing','akhir')">
+            <i class="fas fa-arrow-circle-down"></i>
+            <span>Akhir Periode</span>
+          </div>
+        </div>
+      </div>
+
+      <button class="calc-btn" onclick="hitungInvestasi()">
+        <i class="fas fa-chart-line"></i> Hitung Investasi
+      </button>
+
+      <div class="result-box" id="result-investasi">
+        <div class="result-label"><i class="fas fa-chart-bar"></i> Hasil Perhitungan</div>
+        <div class="result-cards">
+          <div class="result-card">
+            <h5>Total Setoran</h5>
+            <div class="val" id="i_total_setoran">Rp 0</div>
+          </div>
+          <div class="result-card">
+            <h5>Hasil Akhir</h5>
+            <div class="val" id="i_hasil_akhir">Rp 0</div>
+          </div>
+        </div>
+        <div class="result-details-list">
+          <p><span>Keuntungan Investasi:</span><span id="i_keuntungan">Rp 0</span></p>
+          <p><span>Persentase Keuntungan:</span><span id="i_persen">0%</span></p>
+          <p><span>Periode Investasi:</span><span id="i_periode_detail">-</span></p>
+          <p><span>Waktu Setoran:</span><span id="i_timing_detail">-</span></p>
+        </div>
+      </div>
+
+      <div class="saran-wrap" id="result-saran">
+        <div class="saran-header-row">
+          <i class="fas fa-exclamation-triangle"></i>
+          <h4>Hasil investasi belum mencapai target</h4>
+        </div>
+        <div class="kekurangan-info">
+          <p>Target: <strong id="i_s_target">Rp 0</strong></p>
+          <p>Hasil: <strong id="i_s_hasil">Rp 0</strong></p>
+          <p>Kekurangan: <strong id="i_s_kurang">Rp 0</strong></p>
+        </div>
+        <div class="saran-grid">
+          <div class="saran-card">
+            <h5><i class="fas fa-coins"></i> Tingkatkan Setoran</h5>
+            <p>Dengan return <strong id="i_s_return_now">0%</strong>/tahun, setoran per periode menjadi:</p>
+            <div class="saran-val" id="i_s_setoran_baru">Rp 0</div>
+            <p class="saran-note">Setoran baru ini memastikan target tercapai.</p>
+          </div>
+          <div class="saran-card">
+            <h5><i class="fas fa-chart-line"></i> Tingkatkan Return</h5>
+            <p>Dengan setoran <strong id="i_s_setoran_now">Rp 0</strong>/periode, cari produk return:</p>
+            <div class="saran-val" id="i_s_return_baru">0%</div>
+            <p class="saran-note">Return baru ini memastikan target tercapai.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ======================== TAB 4: CICILAN ======================== -->
+    <div id="tab-cicilan" class="tab-content">
+      <div class="section-title">Kalkulator Cicilan</div>
+      <p class="section-desc">Hitung cicilan kredit bulanan kamu secara akurat</p>
+
+      <div class="form-group">
+        <label><i class="fas fa-tag"></i> Harga Barang</label>
+        <div class="input-wrap">
+          <span class="prefix"><i class="fas fa-money-bill-wave"></i></span>
+          <input type="text" id="c_harga" placeholder="Contoh: 30.000.000" oninput="formatRupiah(this)">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label><i class="fas fa-hand-holding-usd"></i> Uang Muka (DP)</label>
+        <div class="input-wrap">
+          <span class="prefix"><i class="fas fa-coins"></i></span>
+          <input type="text" id="c_dp" placeholder="Contoh: 5.000.000 (isi 0 jika tidak ada)" oninput="formatRupiah(this)">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label><i class="fas fa-percentage"></i> Bunga per Tahun (%)</label>
+        <div class="input-wrap">
+          <span class="prefix"><i class="fas fa-chart-bar"></i></span>
+          <input type="number" id="c_bunga" placeholder="Contoh: 10" step="0.1" min="0" style="padding-left:42px;">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label><i class="fas fa-calendar-alt"></i> Tenor (bulan)</label>
+        <div class="input-wrap">
+          <span class="prefix"><i class="fas fa-hourglass-half"></i></span>
+          <input type="number" id="c_tenor" placeholder="Contoh: 24" min="1" style="padding-left:42px;">
+        </div>
+      </div>
+
+      <button class="calc-btn" onclick="hitungCicilan()">
+        <i class="fas fa-calculator"></i> Hitung Cicilan
+      </button>
+
+      <div class="result-box" id="result-cicilan">
+        <div class="result-label"><i class="fas fa-receipt"></i> Hasil Perhitungan</div>
+        <div class="result-cards">
+          <div class="result-card">
+            <h5>Cicilan per Bulan</h5>
+            <div class="val" id="c_cicilan_per_bulan">Rp 0</div>
+          </div>
+          <div class="result-card">
+            <h5>Total Bayar</h5>
+            <div class="val" id="c_total_bayar">Rp 0</div>
+          </div>
+        </div>
+        <div class="result-details-list">
+          <p><span>Pokok Hutang:</span><span id="c_pokok">Rp 0</span></p>
+          <p><span>Total Bunga:</span><span id="c_total_bunga">Rp 0</span></p>
+          <p><span>Uang Muka (DP):</span><span id="c_dp_detail">Rp 0</span></p>
+          <p><span>Tenor:</span><span id="c_tenor_detail">0 bulan</span></p>
+        </div>
+        <div class="cicilan-table-wrap">
+          <table class="cicilan-table">
+            <thead>
+              <tr>
+                <th>Bulan</th>
+                <th>Cicilan</th>
+                <th>Pokok</th>
+                <th>Bunga</th>
+                <th>Sisa Hutang</th>
+              </tr>
+            </thead>
+            <tbody id="c_table_body"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ======================== TAB 5: DANA DARURAT ======================== -->
+    <div id="tab-dana" class="tab-content">
+      <div class="section-title">Kalkulator Dana Darurat</div>
+      <p class="section-desc">Hitung berapa dana darurat ideal yang kamu butuhkan</p>
+
+      <div class="form-group">
+        <label><i class="fas fa-wallet"></i> Pengeluaran Bulanan</label>
+        <div class="input-wrap">
+          <span class="prefix"><i class="fas fa-money-bill-wave"></i></span>
+          <input type="text" id="d_pengeluaran" placeholder="Contoh: 5.000.000" oninput="formatRupiah(this)">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label><i class="fas fa-users"></i> Jumlah Tanggungan (termasuk kamu)</label>
+        <div class="input-wrap">
+          <span class="prefix"><i class="fas fa-user-friends"></i></span>
+          <input type="number" id="d_tanggungan" placeholder="Contoh: 3" min="1" max="20" style="padding-left:42px;" value="1">
+        </div>
+        <p class="input-note">* Lajang: ideal 3 bln | Menikah tanpa anak: 6 bln | Punya anak/tanggungan: 9-12 bln</p>
+      </div>
+
+      <div class="form-group">
+        <label><i class="fas fa-briefcase"></i> Status Pekerjaan</label>
+        <div class="option-grid">
+          <div class="option-card active" id="d_kerja_tetap" onclick="setDanaOption('tetap')">
+            <i class="fas fa-building"></i>
+            <span>Karyawan Tetap</span>
+          </div>
+          <div class="option-card" id="d_kerja_freelance" onclick="setDanaOption('freelance')">
+            <i class="fas fa-laptop"></i>
+            <span>Freelance/Wirausaha</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label><i class="fas fa-piggy-bank"></i> Dana Sudah Tersimpan (opsional)</label>
+        <div class="input-wrap">
+          <span class="prefix"><i class="fas fa-coins"></i></span>
+          <input type="text" id="d_tersimpan" placeholder="Contoh: 2.000.000" oninput="formatRupiah(this)">
+        </div>
+      </div>
+
+      <button class="calc-btn" onclick="hitungDana()">
+        <i class="fas fa-shield-alt"></i> Hitung Dana Darurat
+      </button>
+
+      <div class="result-box" id="result-dana">
+        <div class="result-label"><i class="fas fa-shield-alt"></i> Hasil Perhitungan</div>
+        <div class="result-main" id="result-dana-main"></div>
+        <div class="result-sub" id="result-dana-sub"></div>
+        <div class="dana-tiers" id="dana-tiers"></div>
+      </div>
+    </div>
+
+  </div><!-- end card -->
+
+  <!-- FOOTER -->
+  <div class="app-footer">
+
+    <a href="https://saweria.co/SUPERINF111111110" target="_blank" class="saweria-btn">
+      <i class="fas fa-gift"></i> Beri Dukungan Lewat Saweria
+    </a>
+    <p class="footer-credit">Developer: Super Media Informasi</p>
+  </div>
+
+  <script>
+    // ===== STATE =====
+    const state = {
+      kapan_periode: 'hari',
+      berapa_periode: 'hari',
+      investasi_period: 'bulan',
+      investasi_timing: 'awal'
+    };
+
+    // ===== TAB SWITCH =====
+    function switchTab(name, btn) {
+      document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.getElementById('tab-' + name).classList.add('active');
+      btn.classList.add('active');
+    }
+
+    // ===== PERIODE TOGGLE =====
+    function setPeriode(tab, val) {
+      if (tab === 'kapan') {
+        state.kapan_periode = val;
+        document.getElementById('k_hari_btn').classList.toggle('active', val === 'hari');
+        document.getElementById('k_bulan_btn').classList.toggle('active', val === 'bulan');
+      } else {
+        state.berapa_periode = val;
+        document.getElementById('b_hari_btn').classList.toggle('active', val === 'hari');
+        document.getElementById('b_bulan_btn').classList.toggle('active', val === 'bulan');
+      }
+    }
+
+    // ===== INVESTASI OPTION =====
+    function setInvestasiOption(type, val) {
+      if (type === 'period') {
+        state.investasi_period = val;
+        document.getElementById('i_period_bulan').classList.toggle('active', val === 'bulan');
+        document.getElementById('i_period_tahun').classList.toggle('active', val === 'tahun');
+      } else {
+        state.investasi_timing = val;
+        document.getElementById('i_timing_awal').classList.toggle('active', val === 'awal');
+        document.getElementById('i_timing_akhir').classList.toggle('active', val === 'akhir');
+      }
+    }
+
+    // ===== FORMAT RUPIAH INPUT =====
+    function formatRupiah(input) {
+      let angka = input.value.replace(/[^\d]/g, '');
+      if (!angka) { input.value = ''; return; }
+      const num = parseInt(angka, 10);
+      input.value = isNaN(num) ? '' : num.toLocaleString('id-ID');
+    }
+
+    function parseRp(str) {
+      return parseFloat(String(str).replace(/\./g, '').replace(/,/g, '')) || 0;
+    }
+
+    function rp(angka) {
+      return 'Rp ' + Math.round(angka).toLocaleString('id-ID');
+    }
+
+    // Hitung selisih tanggal secara akurat pakai kalender nyata
+    // Kembalikan { tahun, bulan, hari }
+    function selisihTanggal(dari, ke) {
+      let tahun = ke.getFullYear() - dari.getFullYear();
+      let bulan = ke.getMonth() - dari.getMonth();
+      let hari  = ke.getDate()  - dari.getDate();
+
+      if (hari < 0) {
+        bulan--;
+        // Ambil jumlah hari di bulan sebelumnya (bulan ke)
+        const tBulanLalu = new Date(ke.getFullYear(), ke.getMonth(), 0);
+        hari += tBulanLalu.getDate();
+      }
+      if (bulan < 0) {
+        tahun--;
+        bulan += 12;
+      }
+      return { tahun, bulan, hari };
+    }
+
+    // Format hasil selisih sesuai aturan:
+    // >= 1 tahun  → "X tahun Y bulan Z hari"
+    // >= 1 bulan  → "X bulan Y hari"
+    // < 1 bulan   → "X hari"
+    function formatWaktuDari(selisih) {
+      const { tahun, bulan, hari } = selisih;
+      if (tahun >= 1) {
+        let s = `${tahun} tahun`;
+        if (bulan > 0) s += ` ${bulan} bulan`;
+        if (hari  > 0) s += ` ${hari} hari`;
+        return s;
+      } else if (bulan >= 1) {
+        let s = `${bulan} bulan`;
+        if (hari > 0) s += ` ${hari} hari`;
+        return s;
+      } else {
+        return `${hari} hari`;
+      }
+    }
+
+    // ===== SHOW RESULT =====
+    function showResult(id, mainText, subText, type = 'info') {
+      const box = document.getElementById(id);
+      const main = document.getElementById(id + '-main');
+      const sub = document.getElementById(id + '-sub');
+      main.textContent = mainText;
+      main.className = 'result-main ' + (type === 'success' ? 'success-text' : type === 'warning' ? 'warning-text' : '');
+      if (sub) sub.textContent = subText || '';
+      box.className = 'result-box show ' + (type === 'success' ? 'success-box' : type === 'warning' ? 'warning-box' : '');
+      box.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    // ===== HITUNG KAPAN BELI =====
+    function hitungKapan() {
+      const harga = parseRp(document.getElementById('k_harga').value);
+      const terkumpul = parseRp(document.getElementById('k_terkumpul').value);
+      const nabung = parseRp(document.getElementById('k_nabung').value);
+      const periode = state.kapan_periode;
+
+      if (!harga || harga <= 0) { showResult('result-kapan', '⚠️ Masukkan harga barang yang valid', '', 'warning'); return; }
+      if (terkumpul < 0) { showResult('result-kapan', '⚠️ Jumlah uang terkumpul tidak valid', '', 'warning'); return; }
+      if (!nabung || nabung <= 0) { showResult('result-kapan', '⚠️ Masukkan nominal tabungan per ' + periode, '', 'warning'); return; }
+
+      const sisa = harga - terkumpul;
+      if (sisa <= 0) {
+        showResult('result-kapan', '✅ Uang kamu sudah cukup!', 'Selamat, kamu bisa beli barang ini sekarang!', 'success');
+        return;
+      }
+
+      // Hitung total hari yang dibutuhkan
+      const totalHari = Math.ceil(periode === 'hari' ? sisa / nabung : (sisa / nabung) * 30);
+
+      // Proyeksikan ke tanggal kalender nyata
+      const mulai = new Date();
+      const selesai = new Date(mulai);
+      selesai.setDate(selesai.getDate() + totalHari);
+
+      const selisih = selisihTanggal(mulai, selesai);
+      const waktu = formatWaktuDari(selisih);
+
+      // Format tanggal target
+      const dd = String(selesai.getDate()).padStart(2,'0');
+      const mmStr = String(selesai.getMonth()+1).padStart(2,'0');
+      const yyyy = selesai.getFullYear();
+      const tglTarget = `${dd}/${mmStr}/${yyyy}`;
+
+      showResult('result-kapan',
+        `📅 Dalam ${waktu}`,
+        `Estimasi bisa beli: ${tglTarget} — menabung ${rp(nabung)} per ${periode}, sisa ${rp(sisa)} lagi`,
+        'info'
+      );
+    }
+
+    // ===== HITUNG BERAPA NABUNG =====
+    function hitungBerapa() {
+      const harga = parseRp(document.getElementById('b_harga').value);
+      const terkumpul = parseRp(document.getElementById('b_terkumpul').value);
+      const targetDate = document.getElementById('b_target_date').value;
+      const periode = state.berapa_periode;
+
+      if (!harga || harga <= 0) { showResult('result-berapa', '⚠️ Masukkan harga barang yang valid', '', 'warning'); return; }
+      if (!targetDate) { showResult('result-berapa', '⚠️ Pilih tanggal target beli', '', 'warning'); return; }
+
+      const today = new Date();
+      const tDate = new Date(targetDate);
+      const diffDays = Math.ceil((tDate - today) / (1000 * 60 * 60 * 24));
+
+      if (diffDays <= 0) { showResult('result-berapa', '⚠️ Tanggal target harus lebih dari hari ini', '', 'warning'); return; }
+
+      const sisa = harga - terkumpul;
+      if (sisa <= 0) {
+        showResult('result-berapa', '✅ Uang kamu sudah cukup!', 'Kamu bisa membeli barang ini sekarang!', 'success');
+        return;
+      }
+
+      if (periode === 'hari') {
+        const perHari = sisa / diffDays;
+        showResult('result-berapa',
+          `💰 ${rp(Math.ceil(perHari))} per hari`,
+          `Selama ${diffDays} hari untuk ${rp(sisa)} lagi`,
+          'info'
+        );
+      } else {
+        const totalBulan = diffDays / 30;
+        const tahun = Math.floor(totalBulan / 12);
+        const bulan = Math.round(totalBulan % 12);
+        const perBulan = sisa / totalBulan;
+        let durasi = tahun > 0 ? `${tahun} tahun ` : '';
+        durasi += bulan > 0 ? `${bulan} bulan` : '';
+        showResult('result-berapa',
+          `💰 ${rp(Math.ceil(perBulan))} per bulan`,
+          `Selama ${durasi || Math.round(totalBulan) + ' bulan'} untuk ${rp(sisa)} lagi`,
+          'info'
+        );
+      }
+    }
+
+    // ===== HITUNG INVESTASI =====
+    function hitungFV(setoran, r, n, timing) {
+      if (r === 0) return setoran * n;
+      const faktor = timing === 'awal'
+        ? (1 + r) * (Math.pow(1 + r, n) - 1) / r
+        : (Math.pow(1 + r, n) - 1) / r;
+      return setoran * faktor;
+    }
+
+    function hitungInvestasi() {
+      const target = parseRp(document.getElementById('i_target').value);
+      const setoran = parseRp(document.getElementById('i_setoran').value);
+      const lama = parseFloat(document.getElementById('i_lama').value) || 0;
+      const returnPct = parseFloat(document.getElementById('i_return').value) || 0;
+      const period = state.investasi_period;
+      const timing = state.investasi_timing;
+
+      if (setoran <= 0) { alert('Setoran per periode wajib diisi dan lebih dari 0!'); return; }
+      if (lama <= 0) { alert('Lama investasi harus diisi dan lebih dari 0!'); return; }
+      if (returnPct <= 0) { alert('Return per tahun harus diisi dan lebih dari 0!'); return; }
+
+      const rTahunan = returnPct / 100;
+      let n, r;
+      if (period === 'bulan') { n = lama * 12; r = rTahunan / 12; }
+      else { n = lama; r = rTahunan; }
+
+      const FV = hitungFV(setoran, r, n, timing);
+      const totalSetoran = setoran * n;
+      const keuntungan = FV - totalSetoran;
+      const persen = totalSetoran > 0 ? ((keuntungan / totalSetoran) * 100).toFixed(2) + '%' : '0%';
+
+      document.getElementById('i_total_setoran').textContent = rp(totalSetoran);
+      document.getElementById('i_hasil_akhir').textContent = rp(FV);
+      document.getElementById('i_keuntungan').textContent = rp(keuntungan);
+      document.getElementById('i_persen').textContent = persen;
+      document.getElementById('i_periode_detail').textContent = n + ' ' + (period === 'bulan' ? 'bulan' : 'tahun');
+      document.getElementById('i_timing_detail').textContent = timing === 'awal' ? 'Awal Periode' : 'Akhir Periode';
+
+      document.getElementById('result-investasi').classList.add('show');
+
+      // Saran jika ada target dan belum tercapai
+      if (target > 0 && FV < target) {
+        const kekurangan = target - FV;
+
+        // Saran 1: setoran baru
+        const faktor = timing === 'awal'
+          ? (1 + r) * (Math.pow(1 + r, n) - 1) / r
+          : (Math.pow(1 + r, n) - 1) / r;
+        const setoranBaru = setoran + (kekurangan / faktor);
+
+        // Saran 2: return baru (iterasi)
+        let r2 = r, found = false;
+        for (let i = 0; i < 2000; i++) {
+          r2 += 0.0001;
+          const fv2 = timing === 'awal'
+            ? setoran * (1 + r2) * (Math.pow(1 + r2, n) - 1) / r2
+            : setoran * (Math.pow(1 + r2, n) - 1) / r2;
+          if (fv2 >= target) { found = true; break; }
+        }
+        const returnBaru = period === 'bulan' ? r2 * 12 * 100 : r2 * 100;
+
+        document.getElementById('i_s_target').textContent = rp(target);
+        document.getElementById('i_s_hasil').textContent = rp(FV);
+        document.getElementById('i_s_kurang').textContent = rp(kekurangan);
+        document.getElementById('i_s_return_now').textContent = returnPct.toFixed(1) + '%';
+        document.getElementById('i_s_setoran_now').textContent = rp(setoran);
+        document.getElementById('i_s_setoran_baru').textContent = rp(setoranBaru);
+        document.getElementById('i_s_return_baru').textContent = returnBaru.toFixed(1) + '%';
+        document.getElementById('result-saran').classList.add('show');
+      } else {
+        document.getElementById('result-saran').classList.remove('show');
+      }
+
+      document.getElementById('result-investasi').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+
+    // ===== DARK MODE =====
+    function toggleDark() {
+      document.body.classList.toggle('dark');
+      const icon = document.getElementById('darkIcon');
+      if (document.body.classList.contains('dark')) {
+        icon.className = 'fas fa-sun';
+        localStorage.setItem('darkMode', '1');
+      } else {
+        icon.className = 'fas fa-moon';
+        localStorage.setItem('darkMode', '0');
+      }
+    }
+
+    // ===== DANA DARURAT STATE =====
+    const danaState = { kerja: 'tetap' };
+    function setDanaOption(val) {
+      danaState.kerja = val;
+      document.getElementById('d_kerja_tetap').classList.toggle('active', val === 'tetap');
+      document.getElementById('d_kerja_freelance').classList.toggle('active', val === 'freelance');
+    }
+
+    // ===== HITUNG CICILAN (Anuitas) =====
+    function hitungCicilan() {
+      const harga    = parseRp(document.getElementById('c_harga').value);
+      const dp       = parseRp(document.getElementById('c_dp').value);
+      const bungaPct = parseFloat(document.getElementById('c_bunga').value) || 0;
+      const tenor    = parseInt(document.getElementById('c_tenor').value) || 0;
+
+      if (!harga || harga <= 0) { alert('Masukkan harga barang yang valid!'); return; }
+      if (tenor <= 0)           { alert('Masukkan tenor yang valid!'); return; }
+      if (bungaPct < 0)         { alert('Bunga tidak boleh negatif!'); return; }
+
+      const pokok = harga - dp;
+      if (pokok <= 0) { alert('Uang muka lebih besar dari harga barang!'); return; }
+
+      let cicilanBulanan, totalBayar, totalBunga;
+      const r = bungaPct / 100 / 12;
+
+      if (r === 0) {
+        cicilanBulanan = pokok / tenor;
+        totalBayar = pokok;
+        totalBunga = 0;
+      } else {
+        cicilanBulanan = pokok * (r * Math.pow(1+r, tenor)) / (Math.pow(1+r, tenor) - 1);
+        totalBayar = cicilanBulanan * tenor;
+        totalBunga = totalBayar - pokok;
+      }
+
+      document.getElementById('c_cicilan_per_bulan').textContent = rp(Math.ceil(cicilanBulanan));
+      document.getElementById('c_total_bayar').textContent       = rp(Math.ceil(totalBayar) + dp);
+      document.getElementById('c_pokok').textContent             = rp(pokok);
+      document.getElementById('c_total_bunga').textContent       = rp(Math.ceil(totalBunga));
+      document.getElementById('c_dp_detail').textContent         = rp(dp);
+      document.getElementById('c_tenor_detail').textContent      = tenor + ' bulan';
+
+      // Tabel amortisasi
+      let sisaHutang = pokok;
+      let rows = '';
+      for (let i = 1; i <= tenor; i++) {
+        const bungaBulanIni  = sisaHutang * r;
+        const pokokBulanIni  = (r === 0) ? pokok / tenor : cicilanBulanan - bungaBulanIni;
+        sisaHutang -= pokokBulanIni;
+        if (sisaHutang < 0) sisaHutang = 0;
+        rows += `<tr>
+          <td>${i}</td>
+          <td>${rp(Math.ceil(cicilanBulanan))}</td>
+          <td>${rp(Math.ceil(pokokBulanIni))}</td>
+          <td>${rp(Math.ceil(bungaBulanIni))}</td>
+          <td>${rp(Math.max(0, Math.ceil(sisaHutang)))}</td>
+        </tr>`;
+      }
+      document.getElementById('c_table_body').innerHTML = rows;
+      document.getElementById('result-cicilan').classList.add('show');
+      document.getElementById('result-cicilan').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    // ===== HITUNG DANA DARURAT =====
+    function hitungDana() {
+      const pengeluaran = parseRp(document.getElementById('d_pengeluaran').value);
+      const tanggungan  = parseInt(document.getElementById('d_tanggungan').value) || 1;
+      const tersimpan   = parseRp(document.getElementById('d_tersimpan').value);
+      const kerja       = danaState.kerja;
+
+      if (!pengeluaran || pengeluaran <= 0) { alert('Masukkan pengeluaran bulanan yang valid!'); return; }
+
+      // Tentukan bulan ideal berdasarkan tanggungan & pekerjaan
+      let bulanMin, bulanIdeal, bulanMax;
+      if (kerja === 'freelance') {
+        bulanMin = 6; bulanIdeal = 9; bulanMax = 12;
+      } else {
+        if (tanggungan === 1)      { bulanMin = 3; bulanIdeal = 3; bulanMax = 6; }
+        else if (tanggungan <= 3)  { bulanMin = 3; bulanIdeal = 6; bulanMax = 6; }
+        else                       { bulanMin = 6; bulanIdeal = 9; bulanMax = 12; }
+      }
+
+      const totalPengeluaran = pengeluaran * tanggungan;
+      const danaMin    = totalPengeluaran * bulanMin;
+      const danaIdeal  = totalPengeluaran * bulanIdeal;
+      const danaMax    = totalPengeluaran * bulanMax;
+
+      const sisaIdeal = Math.max(0, danaIdeal - tersimpan);
+      const pctTercapai = tersimpan > 0 ? Math.min(100, Math.round((tersimpan / danaIdeal) * 100)) : 0;
+
+      const mainEl = document.getElementById('result-dana-main');
+      const subEl  = document.getElementById('result-dana-sub');
+      const box    = document.getElementById('result-dana');
+
+      if (tersimpan >= danaIdeal) {
+        mainEl.textContent = '✅ Dana darurat kamu sudah ideal!';
+        mainEl.className = 'result-main success-text';
+        subEl.textContent = `Sudah terkumpul ${rp(tersimpan)} — ${pctTercapai}% dari target ideal`;
+        box.className = 'result-box show success-box';
+      } else if (tersimpan >= danaMin) {
+        mainEl.textContent = '🟡 Dana darurat sudah cukup minimum';
+        mainEl.className = 'result-main warning-text';
+        subEl.textContent = `Masih kurang ${rp(sisaIdeal)} untuk mencapai target ideal`;
+        box.className = 'result-box show warning-box';
+      } else {
+        mainEl.textContent = `⚠️ Masih kurang ${rp(sisaIdeal)}`;
+        mainEl.className = 'result-main';
+        subEl.textContent = `Dana tersimpan ${rp(tersimpan)} (${pctTercapai}%) dari target ideal`;
+        box.className = 'result-box show';
+      }
+
+      document.getElementById('dana-tiers').innerHTML = `
+        <div class="dana-tier">
+          <h5><i class="fas fa-circle" style="color:#f59e0b;font-size:9px;margin-right:6px;"></i> Minimum (${bulanMin} bulan)</h5>
+          <div class="val">${rp(danaMin)}</div>
+          <p>Dana darurat paling minimal yang disarankan</p>
+        </div>
+        <div class="dana-tier">
+          <h5><i class="fas fa-circle" style="color:#3b82f6;font-size:9px;margin-right:6px;"></i> Ideal (${bulanIdeal} bulan)</h5>
+          <div class="val">${rp(danaIdeal)}</div>
+          <p>Target dana darurat yang direkomendasikan untuk kondisi kamu</p>
+        </div>
+        <div class="dana-tier">
+          <h5><i class="fas fa-circle" style="color:#10b981;font-size:9px;margin-right:6px;"></i> Aman (${bulanMax} bulan)</h5>
+          <div class="val">${rp(danaMax)}</div>
+          <p>Dana darurat level aman untuk kondisi tak terduga</p>
+        </div>
+      `;
+
+      box.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    // ===== INIT =====
+    window.onload = function() {
+      const tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      const dd   = String(tomorrow.getDate()).padStart(2, '0');
+      const mm   = String(tomorrow.getMonth() + 1).padStart(2, '0');
+      const yyyy = tomorrow.getFullYear();
+      const minDate = `${yyyy}-${mm}-${dd}`;
+      document.getElementById('b_target_date').min = minDate;
+      document.getElementById('b_target_date').value = minDate;
+      // Restore dark mode
+      if (localStorage.getItem('darkMode') === '1') {
+        document.body.classList.add('dark');
+        document.getElementById('darkIcon').className = 'fas fa-sun';
+      }
+    };
+  </script>
+</div>
+</body>
+</html>
